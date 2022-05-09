@@ -2,6 +2,8 @@
 #include <stack>
 #include <math.h>
 
+#define COUNT 10
+
 using namespace std;
 
 
@@ -29,11 +31,12 @@ void inorder(ExpTree T);
 void printExtra(char postfix[], ExpTree tree);
 void display(ExpTree tree, char postfix[]);
 void line();
+void print2DUtil(TreeNode *root, int space);
+void print2D(TreeNode *root);
 
 bool IsExpCorrect(string infix);
 bool isOperator(char ch);
 bool isDigit(char c);
-
 
 int main()
 {
@@ -51,6 +54,8 @@ int main()
     ExpTree tree1 = NULL;
     tree1 = constructTree(tree1, postfix);
     display(tree1, postfix);
+    cout << "-----------Print-----------"<<endl;
+    print2D(tree1);
     return 0;
 }
 
@@ -61,10 +66,6 @@ void line()
 void display(ExpTree tree, char postfix[])
 {
     line();
-//    cout << "\n PreOrder Traverse  (Parent, Left, Right) : [ ";
-//    preorder(tree);
-//    cout << "]" << endl;
-//    line();
     cout << "\n PostOrder Traverse (Left, Right, Parent) : [ ";
     postorder(tree);
     cout << "]" << endl;
@@ -77,7 +78,6 @@ void display(ExpTree tree, char postfix[])
 }
 void printExtra(char postfix[], ExpTree tree)
 {
-    cout << "\n\t\t\t( Extra Features )" << endl;
     line();
     cout << "\n Result : ";
     inorder(tree);
@@ -121,6 +121,7 @@ ExpTree Create_Node(int info)
     temp->left = NULL;
     temp->right = NULL;
     temp->info = info;
+    cout << info<<endl;
     return temp;
 };
 
@@ -133,7 +134,7 @@ ExpTree constructTree(ExpTree tree, char postfix[])
     while (postfix[i] != '\0')
     {
         if (!(postfix[i] == '+' || postfix[i] == '-' || postfix[i] == '*' || postfix[i] == '/'
-              || postfix[i] == '%' || postfix[i] == '^'))
+            || postfix[i] == '%' || postfix[i] == '^'))
         {
             tree = Create_Node(postfix[i]);
             st.push(tree);
@@ -187,18 +188,18 @@ int getPriority(char ch)
 {
     switch (ch)
     {
-        case '^':
-            return 4;
-        case '%':
-            return 3;
-        case '/':
-        case '*':
-            return 2;
-        case '+':
-        case '-':
-            return 1;
-        default:
-            return 0;
+    case '^':
+        return 4;
+    case '%':
+        return 3;
+    case '/':
+    case '*':
+        return 2;
+    case '+':
+    case '-':
+        return 1;
+    default:
+        return 0;
     }
 }
 void Convert_In_To_Post(string infix, char postfix[])
@@ -244,7 +245,7 @@ void Convert_In_To_Post(string infix, char postfix[])
             else
             {
                 while (!st.empty() && st.top() != '(' &&
-                       getPriority(element) <= getPriority(st.top()))
+                    getPriority(element) <= getPriority(st.top()))
                 {
                     postfix[postCount++] = st.top();
                     st.pop();
@@ -284,36 +285,36 @@ void resultExpression(char postfix[])
             float calc = 0;
             switch (ch)
             {
-                case '+':
-                    calc = num2 + num1;
+            case '+':
+                calc = num2 + num1;
+                break;
+            case '-':
+                calc = num2 - num1;
+                break;
+            case '*':
+                calc = num2 * num1;
+                break;
+            case '/':
+                if (num1 == 0)
+                {
+                    cout << "\n Math Error: Can't Divide by Zero " << endl;
+                    error = true;
                     break;
-                case '-':
-                    calc = num2 - num1;
+                }
+                calc = num2 / num1;
+                break;
+            case '%':
+                if (num1 == 0)
+                {
+                    cout << "\n Math Error: Can't Divide by Zero " << endl;
+                    error = true;
                     break;
-                case '*':
-                    calc = num2 * num1;
-                    break;
-                case '/':
-                    if (num1 == 0)
-                    {
-                        cout << "\n Math Error: Can't Divide by Zero " << endl;
-                        error = true;
-                        break;
-                    }
-                    calc = num2 / num1;
-                    break;
-                case '%':
-                    if (num1 == 0)
-                    {
-                        cout << "\n Math Error: Can't Divide by Zero " << endl;
-                        error = true;
-                        break;
-                    }
-                    calc = ((int)num2) % ((int)num1);
-                    break;
-                case '^':
-                    calc = pow(num2, num1);
-                    break;
+                }
+                calc = ((int)num2) % ((int)num1);
+                break;
+            case '^':
+                calc = pow(num2, num1);
+                break;
             }
             result.push(calc);
         }
@@ -338,5 +339,37 @@ int height(ExpTree T)
         return 1 + max(height(T->left), height(T->right));
     }
 }
+
+
+void print2DUtil(TreeNode *root, int space)
+{
+    // Base case
+    if (root == NULL)
+        return;
+ 
+    // Increase distance between levels
+    space += COUNT;
+ 
+    // Process right child first
+    print2DUtil(root->right, space);
+ 
+    // Print current node after space
+    // count
+    cout<<endl;
+    for (int i = COUNT; i < space; i++)
+        cout<<" ";
+    cout<<root->info<<"\n";
+ 
+    // Process left child
+    print2DUtil(root->left, space);
+}
+ 
+// Wrapper over print2DUtil()
+void print2D(TreeNode *root)
+{
+    // Pass initial space count as 0
+    print2DUtil(root, 0);
+}
+
 
 
